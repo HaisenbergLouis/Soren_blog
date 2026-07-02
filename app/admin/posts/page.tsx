@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { Inbox } from "lucide-react";
 
 export default function AdminPostsPage() {
   return (
@@ -24,11 +25,21 @@ export default function AdminPostsPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">标题</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">状态</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">分类</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">日期</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">操作</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                标题
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                状态
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                分类
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                日期
+              </th>
+              <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                操作
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +47,9 @@ export default function AdminPostsPage() {
             <tr>
               <td colSpan={5} className="px-6 py-16 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-3xl">📭</span>
+                  <span className="text-3xl">
+                    <Inbox />
+                  </span>
                   <p className="text-sm text-neutral-400">还没有文章</p>
                   <Link
                     href="/admin/posts/new"

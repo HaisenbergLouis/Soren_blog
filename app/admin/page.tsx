@@ -1,4 +1,6 @@
-﻿export default function AdminPage() {
+﻿import { FileText, FolderTree, CheckCircle2 } from "lucide-react";
+
+export default function AdminPage() {
   return (
     <div>
       <div className="mb-8">
@@ -16,7 +18,9 @@
             className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 bg-white dark:bg-neutral-900 transition-shadow hover:shadow-md"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-2xl">{stat.icon}</span>
+              <span className="text-2xl">
+                <stat.icon className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+              </span>
               <span className={stat.colorClass}>{stat.trend}</span>
             </div>
             <p className="text-sm text-neutral-500">{stat.label}</p>
@@ -33,16 +37,32 @@
           最近动态
         </h2>
         {/* TODO: 显示最近文章或操作日志 */}
-        <p className="text-sm text-neutral-400 text-center py-8">
-          暂无动态
-        </p>
+        <p className="text-sm text-neutral-400 text-center py-8">暂无动态</p>
       </div>
     </div>
   );
 }
 
 const stats = [
-  { label: "文章总数", value: "0", icon: "📝", trend: "+", colorClass: "text-xs text-emerald-500" },
-  { label: "分类数", value: "0", icon: "📁", trend: "-", colorClass: "text-xs text-neutral-400" },
-  { label: "已发布", value: "0", icon: "✅", trend: "-", colorClass: "text-xs text-neutral-400" },
+  {
+    label: "文章总数",
+    value: "0",
+    icon: FileText,
+    trend: "+",
+    colorClass: "text-xs text-emerald-500",
+  },
+  {
+    label: "分类数",
+    value: "0",
+    icon: FolderTree,
+    trend: "-",
+    colorClass: "text-xs text-neutral-400",
+  },
+  {
+    label: "已发布",
+    value: "0",
+    icon: CheckCircle2,
+    trend: "-",
+    colorClass: "text-xs text-neutral-400",
+  },
 ];

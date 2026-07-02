@@ -1,4 +1,6 @@
-﻿export default function NewCategoryPage() {
+﻿import { FileEdit } from "lucide-react";
+
+export default function NewCategoryPage() {
   return (
     <div>
       <div className="mb-8">
@@ -11,7 +13,9 @@
       {/* TODO: 分类表单 - 名称、标识(slug)、描述 */}
       <div className="max-w-lg rounded-2xl border border-neutral-200 dark:border-neutral-800 p-8 bg-white dark:bg-neutral-900">
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <span className="text-4xl mb-4">🏷️</span>
+          <span className="text-4xl mb-4">
+            <FileEdit />
+          </span>
           <p className="text-sm text-neutral-400">
             表单区域 — 等你来写业务逻辑
           </p>

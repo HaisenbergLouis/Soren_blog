@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { Home, FileText, Settings } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,9 +23,9 @@ export const metadata: Metadata = {
 };
 
 const navLinks = [
-  { label: "首页", href: "/" },
-  { label: "文章", href: "/posts" },
-  { label: "管理后台", href: "/admin" },
+  { label: "首页", href: "/", icon: Home },
+  { label: "文章", href: "/posts", icon: Home },
+  { label: "管理后台", href: "/admin", icon: Settings },
 ];
 
 export default function RootLayout({
@@ -41,19 +42,26 @@ export default function RootLayout({
         {/* 顶部导航栏 */}
         <header className="sticky top-0 z-50 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 flex items-center justify-between h-16">
-            <Link href="/" className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+            <Link
+              href="/"
+              className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100"
+            >
               FS Blog
             </Link>
             <nav className="flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center justify-center gap-1 rounded-lg px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {link.label}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         </header>
@@ -64,7 +72,9 @@ export default function RootLayout({
         {/* 页脚 */}
         <footer className="border-t border-neutral-200 dark:border-neutral-800">
           <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8 text-center text-sm text-neutral-500">
-            <p>&copy; {new Date().getFullYear()} FS Blog. Built with Next.js.</p>
+            <p>
+              &copy; {new Date().getFullYear()} FS Blog. Built with Next.js.
+            </p>
           </div>
         </footer>
       </body>

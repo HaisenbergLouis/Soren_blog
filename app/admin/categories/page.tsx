@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { FolderOpen } from "lucide-react";
 
 export default function AdminCategoriesPage() {
   return (
@@ -24,10 +25,18 @@ export default function AdminCategoriesPage() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">名称</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">标识</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">文章数</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">操作</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                名称
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                标识
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                文章数
+              </th>
+              <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                操作
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +44,9 @@ export default function AdminCategoriesPage() {
             <tr>
               <td colSpan={4} className="px-6 py-16 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <span className="text-3xl">📂</span>
+                  <span className="text-3xl">
+                    <FolderOpen />
+                  </span>
                   <p className="text-sm text-neutral-400">还没有分类</p>
                   <Link
                     href="/admin/categories/new"

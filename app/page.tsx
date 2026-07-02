@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PenLine, FolderOpen, Palette } from "lucide-react";
 
 export default function Home() {
   return (
@@ -40,7 +41,9 @@ export default function Home() {
             key={i}
             className="group rounded-2xl border border-neutral-200 dark:border-neutral-800 p-8 transition-all hover:shadow-lg hover:-translate-y-1 hover:border-neutral-300 dark:hover:border-neutral-700"
           >
-            <div className="mb-4 text-3xl">{feature.icon}</div>
+            <div className="mb-4 text-3xl">
+              <feature.icon className="h-8 w-8 text-neutral-700 dark:text-neutral-300" />
+            </div>
             <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
               {feature.title}
             </h3>
@@ -56,17 +59,17 @@ export default function Home() {
 
 const features = [
   {
-    icon: "📝",
+    icon: PenLine,
     title: "Markdown 写作",
     description: "使用 Markdown 语法编写文章，支持代码高亮和丰富的排版样式",
   },
   {
-    icon: "📂",
+    icon: FolderOpen,
     title: "分类管理",
     description: "灵活的分类和标签系统，让文章组织更加清晰有序，方便检索",
   },
   {
-    icon: "🎨",
+    icon: Palette,
     title: "响应式设计",
     description: "精美的深色/浅色主题，完美适配桌面端和移动端设备",
   },
