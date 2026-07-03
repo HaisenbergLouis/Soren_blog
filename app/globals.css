@@ -88,6 +88,7 @@
 /* 平滑滚动 */
 html {
   scroll-behavior: smooth;
+  overflow-y:scroll;
 }
 
 :root {

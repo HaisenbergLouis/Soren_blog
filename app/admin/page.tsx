@@ -1,6 +1,36 @@
-﻿import { FileText, FolderTree, CheckCircle2 } from "lucide-react";
+﻿import { prisma } from "@/lib/prisma";
+import { FileText, FolderTree, CheckCircle2 } from "lucide-react";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const [totalPosts, totalCategories, publishedPosts] = await Promise.all([
+    prisma.post.count(),
+    prisma.category.count(),
+    prisma.post.count({ where: { published: true } }),
+  ]);
+
+  const stats = [
+    {
+      label: "文章总数",
+      value: String(totalPosts),
+      icon: FileText,
+      trend: "+",
+      colorClass: "text-xs text-emerald-500",
+    },
+    {
+      label: "分类数",
+      value: String(totalCategories),
+      icon: FolderTree,
+      trend: "-",
+      colorClass: "text-xs text-neutral-400",
+    },
+    {
+      label: "已发布",
+      value: String(publishedPosts),
+      icon: CheckCircle2,
+      trend: "-",
+      colorClass: "text-xs text-neutral-400",
+    },
+  ];
   return (
     <div>
       <div className="mb-8">
