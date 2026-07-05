@@ -1,15 +1,31 @@
 ﻿import { BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Pagination from "@/components/Pagination";
 
-export default async function PostsPage() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    include: {
-      category: { select: { name: true, slug: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page } = await searchParams;
+  const currentPage = Math.max(1, Number(page) || 1);
+  const pageSize = 9;
+
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      where: { published: true },
+      include: {
+        category: { select: { name: true, slug: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.post.count({ where: { published: true } }),
+  ]);
+
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div>
@@ -53,6 +69,11 @@ export default async function PostsPage() {
           ))}
         </div>
       )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        basePath="/posts"
+      />
     </div>
   );
 }
