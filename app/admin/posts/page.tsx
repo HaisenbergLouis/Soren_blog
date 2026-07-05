@@ -1,7 +1,8 @@
 ﻿import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Inbox, Pencil, Trash2 } from "lucide-react";
+import { Inbox, Pencil } from "lucide-react";
 import type { PostAdminItem } from "@/types";
+import DeleteButton from "@/components/posts/DeleteButton";
 
 export default async function AdminPostsPage() {
   const posts = await prisma.post.findMany({
@@ -98,10 +99,7 @@ export default async function AdminPostsPage() {
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      {/* TODO: 删除功能 */}
-                      <button className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <DeleteButton id={post.id} label={post.title} />
                     </div>
                   </td>
                 </tr>
