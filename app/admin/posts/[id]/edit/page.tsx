@@ -1,29 +1,48 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { use } from "react";
 
-export default function NewPostPage() {
+export default function EditPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     [],
   );
+  const [post, setPost] = useState<{
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    content: string;
+    coverImage: string | null;
+    published: boolean;
+    categoryId: string | null;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
       .then(setCategories);
-  }, []);
+
+    // TODO: 加载文章数据
+    // fetch(`/api/posts/${id}`)
+    //   .then((res) => res.json())
+    //   .then(setPost);
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // TODO: 收集表单数据并调用 POST /api/posts
+    // TODO: 提交更新
     const formData = new FormData(e.currentTarget);
     const data = {
       title: formData.get("title"),
@@ -33,8 +52,8 @@ export default function NewPostPage() {
       categoryId: formData.get("categoryId") || null,
       published: formData.get("published") === "on",
     };
-    const res = await fetch("/api/posts", {
-      method: "POST",
+    const res = await fetch(`/api/posts/${id}`, {
+      method: "PUT",
       body: JSON.stringify(data),
       headers: { "Content-Type": "application/json" },
     });
@@ -53,9 +72,9 @@ export default function NewPostPage() {
           <ArrowLeft className="h-4 w-4" /> 返回文章管理
         </Link>
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-          新建文章
+          编辑文章
         </h1>
-        <p className="text-sm text-neutral-500 mt-1">撰写一篇新博客文章</p>
+        <p className="text-sm text-neutral-500 mt-1">修改文章内容</p>
       </div>
 
       <form
@@ -69,6 +88,7 @@ export default function NewPostPage() {
           </label>
           <input
             name="title"
+            defaultValue={post?.title ?? ""}
             required
             className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400"
             placeholder="输入文章标题"
@@ -82,6 +102,7 @@ export default function NewPostPage() {
           </label>
           <input
             name="slug"
+            defaultValue={post?.slug ?? ""}
             required
             className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400"
             placeholder="my-article-slug"
@@ -93,9 +114,9 @@ export default function NewPostPage() {
           <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
             分类
           </label>
-          {/* TODO: 从数据库加载分类列表 */}
           <select
             name="categoryId"
+            defaultValue={post?.categoryId ?? ""}
             className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400"
           >
             <option value="">未分类</option>
@@ -114,6 +135,7 @@ export default function NewPostPage() {
           </label>
           <textarea
             name="excerpt"
+            defaultValue={post?.excerpt ?? ""}
             rows={3}
             className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 resize-none"
             placeholder="文章摘要（可选）"
@@ -127,6 +149,7 @@ export default function NewPostPage() {
           </label>
           <textarea
             name="content"
+            defaultValue={post?.content ?? ""}
             rows={12}
             className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 font-mono resize-y"
             placeholder="在此输入 Markdown 内容..."
@@ -139,13 +162,14 @@ export default function NewPostPage() {
             type="checkbox"
             name="published"
             id="published"
+            defaultChecked={post?.published ?? false}
             className="h-4 w-4 rounded border-neutral-300"
           />
           <label
             htmlFor="published"
             className="text-sm text-neutral-700 dark:text-neutral-300"
           >
-            立即发布
+            已发布
           </label>
         </div>
 
@@ -156,7 +180,7 @@ export default function NewPostPage() {
             disabled={loading}
             className="rounded-xl bg-neutral-900 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-neutral-800 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            {loading ? "发布中..." : "发布文章"}
+            {loading ? "保存中..." : "保存修改"}
           </button>
           <Link
             href="/admin/posts"

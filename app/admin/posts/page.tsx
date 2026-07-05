@@ -1,7 +1,7 @@
 ﻿import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Inbox, Pencil, Trash2 } from "lucide-react";
-import type { PostListItem } from "@/types";
+import type { PostAdminItem } from "@/types";
 
 export default async function AdminPostsPage() {
   const posts = await prisma.post.findMany({
@@ -65,7 +65,7 @@ export default async function AdminPostsPage() {
                 </td>
               </tr>
             ) : (
-              posts.map((post: PostListItem) => (
+              posts.map((post: PostAdminItem) => (
                 <tr
                   key={post.id}
                   className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
@@ -92,9 +92,13 @@ export default async function AdminPostsPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800">
+                      <Link
+                        href={`/admin/posts/${post.id}/edit`}
+                        className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800"
+                      >
                         <Pencil className="h-4 w-4" />
-                      </button>
+                      </Link>
+                      {/* TODO: 删除功能 */}
                       <button className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20">
                         <Trash2 className="h-4 w-4" />
                       </button>

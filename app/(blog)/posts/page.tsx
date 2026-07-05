@@ -1,7 +1,6 @@
 ﻿import { BookOpen } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { PostListItem } from "@/types";
 
 export default async function PostsPage() {
   const posts = await prisma.post.findMany({
@@ -30,7 +29,7 @@ export default async function PostsPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post: PostListItem) => (
+          {posts.map((post) => (
             <Link
               key={post.id}
               href={`/posts/${post.slug}`}
