@@ -14,17 +14,17 @@ export default function NewCategoryPage() {
     setLoading(true);
 
     // TODO: 提交表单
-    // const formData = new FormData(e.currentTarget);
-    // const res = await fetch("/api/categories", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     name: formData.get("name"),
-    //     slug: formData.get("slug"),
-    //     description: formData.get("description"),
-    //   }),
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (res.ok) router.push("/admin/categories");
+    const formData = new FormData(e.currentTarget);
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      body: JSON.stringify({
+        name: formData.get("name"),
+        slug: formData.get("slug"),
+        description: formData.get("description"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (res.ok) router.push("/admin/categories");
 
     setLoading(false);
   };
