@@ -19,7 +19,7 @@ export default function LoginPage() {
     });
 
     if (res?.ok) {
-      window.location.href = "/admin";
+      window.location.href = "/";
     } else {
       setError("邮箱或密码错误");
     }
