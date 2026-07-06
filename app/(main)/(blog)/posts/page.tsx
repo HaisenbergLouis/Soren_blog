@@ -6,9 +6,9 @@ import Pagination from "@/components/Pagination";
 export default async function PostsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; category?: string }>;
 }) {
-  const { page, q } = await searchParams;
+  const { page, q, category } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
   const pageSize = 9;
   const keyword = q?.trim();
@@ -23,9 +23,10 @@ export default async function PostsPage({
           ],
         }
       : {}),
+    ...(category ? { category: { slug: category } } : {}),
   };
 
-  const [posts, total] = await Promise.all([
+  const [posts, total, categoryName] = await Promise.all([
     prisma.post.findMany({
       where,
       include: {
@@ -36,6 +37,12 @@ export default async function PostsPage({
       take: pageSize,
     }),
     prisma.post.count({ where }),
+    category
+      ? prisma.category.findUnique({
+          where: { slug: category },
+          select: { name: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
@@ -44,9 +51,13 @@ export default async function PostsPage({
     <div>
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-          所有文章
+          {categoryName?.name ?? "所有文章"}
         </h1>
-        <p className="text-neutral-500 mt-2">共 {posts.length} 篇文章</p>
+        <p className="text-neutral-500 mt-2">
+          {category
+            ? categoryName?.name + " 分类的文章"
+            : `共 ${posts.length} 篇文章`}
+        </p>
         {/* 搜索框 */}
         <form className="mt-6 flex gap-3 max-w-md">
           <input
