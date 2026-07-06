@@ -29,6 +29,9 @@ model Post {
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   tags       TagOnPost[]
+
+  authorId String?
+  author   User? @relation(fields: [authorId], references: [id])
 }
 
 model Category {
@@ -56,4 +59,16 @@ model TagOnPost {
   tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([postId, tagId])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  image     String?
+  role      String   @default("USER") // "USER" | "ADMIN"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
 }
