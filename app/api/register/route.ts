@@ -9,11 +9,14 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "邮箱已被注册" }, { status: 400 });
   }
 
+  const userCount = await prisma.user.count();
+
   const user = await prisma.user.create({
     data: {
       name: body.name || body.email.split("@")[0],
       email: body.email,
       password: body.password,
+      role: userCount === 0 ? "ADMIN" : "USER",
     },
   });
 

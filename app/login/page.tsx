@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -21,7 +19,7 @@ export default function LoginPage() {
     });
 
     if (res?.ok) {
-      router.push("/admin");
+      window.location.href = "/admin";
     } else {
       setError("邮箱或密码错误");
     }

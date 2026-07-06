@@ -21,7 +21,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const isValid = await compare(password, user.password);
         if (!isValid) return null;
 
-        return { id: user.id, name: user.name, email: user.email };
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
   ],
@@ -29,9 +34,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.role = user.role;
+      return token;
+    },
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
+      if (session.user) {
+        session.user.id = token.sub!;
+        session.user.role = token.role as string;
       }
       return session;
     },
