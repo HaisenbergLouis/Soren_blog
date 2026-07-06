@@ -1,5 +1,7 @@
 ﻿import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LayoutDashboard, FileText, FolderTree, ArrowLeft } from "lucide-react";
+import { auth } from "@/lib/auth";
 
 const adminNav = [
   { label: "仪表盘", href: "/admin", icon: LayoutDashboard },
@@ -7,11 +9,14 @@ const adminNav = [
   { label: "分类管理", href: "/admin/categories", icon: FolderTree },
 ];
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   return (
     <div className="min-h-screen flex">
       {/* 侧边栏 */}

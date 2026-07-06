@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 
 // GET /api/posts — 获取文章列表（支持筛选已发布/全部）
 export async function GET(request: NextRequest) {
@@ -20,6 +21,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/posts — 创建新文章
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "未登录" }, { status: 401 });
+  }
+
   const body = await request.json();
 
   const post = await prisma.post.create({
@@ -31,6 +37,7 @@ export async function POST(request: NextRequest) {
       coverImage: body.coverImage,
       published: body.published ?? false,
       categoryId: body.categoryId,
+      authorId: session.user.id,
       tags: {
         create: body.tagIds?.map((tagId: string) => ({ tagId })),
       },

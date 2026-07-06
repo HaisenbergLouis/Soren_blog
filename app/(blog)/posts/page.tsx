@@ -105,6 +105,3 @@ export default async function PostsPage({
     </div>
   );
 }
-function trim() {
-  throw new Error("Function not implemented.");
-}
