@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { Home, FileText, Settings } from "lucide-react";
+import { auth } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,15 +25,16 @@ export const metadata: Metadata = {
 
 const navLinks = [
   { label: "首页", href: "/", icon: Home },
-  { label: "文章", href: "/posts", icon: Home },
+  { label: "文章", href: "/posts", icon: FileText },
   { label: "管理后台", href: "/admin", icon: Settings },
 ];
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html
       lang="zh-CN"
@@ -63,6 +65,24 @@ export default function RootLayout({
                 );
               })}
             </nav>
+            {/* 右侧：登录状态 */}
+            <div className="flex items-center gap-3">
+              {session?.user ? (
+                <Link
+                  href="/profile"
+                  className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                >
+                  {session.user.name ?? session.user.email}
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                >
+                  登录
+                </Link>
+              )}
+            </div>
           </div>
         </header>
 
