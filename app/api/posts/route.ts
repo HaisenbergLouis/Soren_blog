@@ -2,19 +2,33 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 
-// GET /api/posts — 获取文章列表（支持筛选已发布/全部）
+// GET /api/posts — 获取文章列表（支持筛选、分页）
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const published = searchParams.get("published");
-  const where = published === "true" ? { published: true } : {};
+  const page = Number(searchParams.get("page") || "1");
+  const limit = Number(searchParams.get("limit") || "9");
+  const category = searchParams.get("category");
+  const q = searchParams.get("q");
+
+  const where: Record<string, unknown> = {};
+  if (published === "true") where.published = true;
+  if (category) where.category = { slug: category };
+  if (q?.trim()) {
+    where.OR = [
+      { title: { contains: q.trim() } },
+      { excerpt: { contains: q.trim() } },
+    ];
+  }
 
   const posts = await prisma.post.findMany({
     where,
     include: {
       category: { select: { name: true, slug: true } },
-      tags: { include: { tag: { select: { name: true, slug: true } } } },
     },
     orderBy: { createdAt: "desc" },
+    skip: (page - 1) * limit,
+    take: limit,
   });
   return Response.json(posts);
 }
