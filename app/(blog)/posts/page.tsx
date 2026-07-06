@@ -6,15 +6,28 @@ import Pagination from "@/components/Pagination";
 export default async function PostsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
-  const { page } = await searchParams;
+  const { page, q } = await searchParams;
   const currentPage = Math.max(1, Number(page) || 1);
   const pageSize = 9;
+  const keyword = q?.trim();
+
+  const where = {
+    published: true,
+    ...(keyword
+      ? {
+          OR: [
+            { title: { contains: keyword } },
+            { excerpt: { contains: keyword } },
+          ],
+        }
+      : {}),
+  };
 
   const [posts, total] = await Promise.all([
     prisma.post.findMany({
-      where: { published: true },
+      where,
       include: {
         category: { select: { name: true, slug: true } },
       },
@@ -22,7 +35,7 @@ export default async function PostsPage({
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     }),
-    prisma.post.count({ where: { published: true } }),
+    prisma.post.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
@@ -34,6 +47,21 @@ export default async function PostsPage({
           所有文章
         </h1>
         <p className="text-neutral-500 mt-2">共 {posts.length} 篇文章</p>
+        {/* 搜索框 */}
+        <form className="mt-6 flex gap-3 max-w-md">
+          <input
+            name="q"
+            defaultValue={keyword ?? ""}
+            placeholder="搜索文章..."
+            className="flex-1 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+          >
+            搜索
+          </button>
+        </form>
       </div>
 
       {posts.length === 0 ? (
@@ -76,4 +104,7 @@ export default async function PostsPage({
       />
     </div>
   );
+}
+function trim() {
+  throw new Error("Function not implemented.");
 }
