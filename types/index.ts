@@ -15,3 +15,15 @@ export type PostAdminItem = Prisma.PostGetPayload<{
 
 // export type { Category } from "@prisma/client";
 export type CategoryData = Category;
+
+// 评论类型
+export type CommentWithAuthor = Prisma.CommentGetPayload<{
+  include: {
+    author: { select: { id: true; name: true; image: true } };
+    replies: {
+      include: {
+        author: { select: { id: true; name: true; image: true } };
+      };
+    };
+  };
+}>;

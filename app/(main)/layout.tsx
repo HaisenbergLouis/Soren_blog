@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { Home, Settings, Search, PenSquare } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -47,9 +48,20 @@ export default async function MainLayout({
               <>
                 <Link
                   href="/profile"
-                  className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                  className="h-8 w-8 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden border-2 border-transparent hover:border-neutral-400 transition-all shrink-0"
+                  title={session.user.name ?? session.user.email ?? ""}
                 >
-                  {session.user.name ?? session.user.email}
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt="头像"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                      {(session.user.name ?? "U").charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </Link>
                 <Link
                   href="/write"

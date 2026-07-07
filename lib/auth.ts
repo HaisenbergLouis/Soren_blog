@@ -25,6 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           name: user.name,
           email: user.email,
+          image: user.image,
           role: user.role,
         };
       },
@@ -35,13 +36,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) {
+        token.role = user.role;
+        token.picture = user.image;
+      }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role as string;
+        // 每次请求从数据库拉取最新头像和昵称
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { image: true, name: true },
+        });
+        session.user.image = dbUser?.image ?? null;
+        session.user.name = dbUser?.name;
       }
       return session;
     },

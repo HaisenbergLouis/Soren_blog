@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Eye } from "lucide-react";
+import CommentList from "@/components/comments/CommentList";
 
 export default async function PostDetailPage({
   params,
@@ -99,6 +100,7 @@ export default async function PostDetailPage({
           </div>
         </div>
       )}
+      <CommentList postId={post.id} />
     </article>
   );
 }
