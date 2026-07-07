@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Settings, Search } from "lucide-react";
+import { Home, Settings, Search, PenSquare } from "lucide-react";
 import { auth } from "@/lib/auth";
 import LogoutButton from "@/components/layout/LogoutButton";
 
@@ -50,6 +50,13 @@ export default async function MainLayout({
                   className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
                 >
                   {session.user.name ?? session.user.email}
+                </Link>
+                <Link
+                  href="/write"
+                  className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                >
+                  <PenSquare className="h-4 w-4" />
+                  写文章
                 </Link>
                 {session.user.role === "ADMIN" && (
                   <Link
