@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 export default function WritePostForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     [],
   );
@@ -19,6 +20,7 @@ export default function WritePostForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -39,6 +41,9 @@ export default function WritePostForm() {
     if (res.ok) {
       router.push("/profile");
       router.refresh();
+    } else {
+      const err = await res.json().catch(() => ({ error: "发布失败" }));
+      setError(err.error || "发布失败，请检查 slug 是否重复");
     }
 
     setLoading(false);
@@ -134,6 +139,13 @@ export default function WritePostForm() {
           立即发布
         </label>
       </div>
+
+      {/* 错误提示 */}
+      {error && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
 
       {/* 提交按钮 */}
       <div className="flex items-center gap-3 pt-2">

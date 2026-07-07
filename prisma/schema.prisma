@@ -76,6 +76,8 @@ model User {
   updatedAt DateTime @updatedAt
   posts     Post[]
   comments Comment[]
+  followedBy  Follow[] @relation("following") // 粉丝
+  following   Follow[] @relation("follower")  // 关注的人
 }
 
 model Comment {
@@ -96,4 +98,18 @@ model Comment {
 
   @@index([postId])
   @@index([authorId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }

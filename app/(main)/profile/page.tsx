@@ -13,6 +13,7 @@ export default async function ProfilePage() {
   const [user, posts] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
+
       select: {
         name: true,
         email: true,
@@ -20,6 +21,12 @@ export default async function ProfilePage() {
         bio: true,
         bgImage: true,
         createdAt: true,
+        _count: {
+          select: {
+            followedBy: true, // 粉丝数
+            following: true, // 关注数
+          },
+        },
       },
     }),
     prisma.post.findMany({
@@ -92,6 +99,12 @@ export default async function ProfilePage() {
 
           {/* 统计信息 */}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-500">
+            <span className="flex items-center gap-1.5">
+              👥 {user?._count?.following ?? 0} 关注
+            </span>
+            <span className="flex items-center gap-1.5">
+              ❤️ {user?._count?.followedBy ?? 0} 粉丝
+            </span>
             <span className="flex items-center gap-1.5">
               <FileText className="h-4 w-4" />
               {posts.length} 篇文章 · {publishedCount} 篇已发布

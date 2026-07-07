@@ -42,25 +42,36 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const post = await prisma.post.create({
-    data: {
-      title: body.title,
-      slug: body.slug,
-      excerpt: body.excerpt,
-      content: body.content,
-      coverImage: body.coverImage,
-      published: body.published ?? false,
-      categoryId: body.categoryId,
-      authorId: session.user.id,
-      tags: {
-        create: body.tagIds?.map((tagId: string) => ({ tagId })),
+  try {
+    const post = await prisma.post.create({
+      data: {
+        title: body.title,
+        slug: body.slug,
+        excerpt: body.excerpt,
+        content: body.content,
+        coverImage: body.coverImage,
+        published: body.published ?? false,
+        categoryId: body.categoryId,
+        authorId: session.user.id,
+        tags: {
+          create: body.tagIds?.map((tagId: string) => ({ tagId })),
+        },
       },
-    },
-    include: {
-      category: true,
-      tags: { include: { tag: true } },
-    },
-  });
+      include: {
+        category: true,
+        tags: { include: { tag: true } },
+      },
+    });
 
-  return Response.json(post, { status: 201 });
+    return Response.json(post, { status: 201 });
+  } catch (e: unknown) {
+    const error = e as { code?: string; meta?: { target?: string[] } };
+    if (error?.code === "P2002" && error?.meta?.target?.includes("slug")) {
+      return Response.json(
+        { error: "slug 已被使用，请换一个" },
+        { status: 409 },
+      );
+    }
+    return Response.json({ error: "发布失败，请稍后重试" }, { status: 500 });
+  }
 }
