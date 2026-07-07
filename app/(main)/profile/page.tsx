@@ -28,10 +28,7 @@ export default async function ProfilePage() {
       {posts.length === 0 ? (
         <div className="text-center py-20 text-neutral-400">
           <p>还没有写过文章</p>
-          <Link
-            href="/admin/posts/new"
-            className="mt-4 inline-block underline text-sm"
-          >
+          <Link href="/write" className="mt-4 inline-block underline text-sm">
             写第一篇 →
           </Link>
         </div>
@@ -64,7 +61,7 @@ export default async function ProfilePage() {
                   </div>
                 </div>
                 <Link
-                  href={`/admin/posts/${post.id}/edit`}
+                  href={`/edit/${post.id}`}
                   className="text-sm text-neutral-400 hover:text-neutral-600"
                 >
                   编辑

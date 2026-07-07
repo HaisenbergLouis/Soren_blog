@@ -21,12 +21,12 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen flex">
       {/* 侧边栏 */}
-      <aside className="w-64 bg-neutral-950 text-white p-6 flex flex-col border-r border-neutral-800">
+      <aside className="w-64 bg-gray-200 text-black p-6 flex flex-col border-r border-neutral-800">
         <div className="mb-8">
           <Link href="/" className="text-lg font-bold tracking-tight">
             FS Blog
           </Link>
-          <p className="text-xs text-neutral-500 mt-1">管理后台</p>
+          <p className="text-xs text-black mt-1">管理后台</p>
         </div>
         <nav className="flex flex-col gap-1">
           {adminNav.map((item) => {
@@ -35,7 +35,7 @@ export default async function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-400 transition-all hover:bg-neutral-800 hover:text-white"
+                className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-black transition-all hover:bg-neutral-800 hover:text-white"
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
@@ -48,7 +48,7 @@ export default async function AdminLayout({
         <div className="mt-auto pt-6 border-t border-neutral-800">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-neutral-500 transition-colors hover:text-white"
+            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-black  transition-all hover:text-white hover:bg-neutral-800"
           >
             <ArrowLeft className="h-4 w-4" />
             返回前台
