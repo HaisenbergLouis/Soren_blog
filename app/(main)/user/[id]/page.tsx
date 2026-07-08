@@ -1,10 +1,39 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, Calendar } from "lucide-react";
 import FollowButton from "./FollowButton";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { name: true, bio: true, image: true },
+  });
+
+  if (!user) return { title: "用户未找到" };
+
+  return {
+    title: `${user.name ?? "用户"} 的个人主页`,
+    description:
+      user.bio || `${user.name ?? "该用户"} 的个人主页，查看其发表的文章`,
+    openGraph: {
+      title: `${user.name ?? "用户"} 的个人主页`,
+      description: user.bio || undefined,
+      ...(user.image ? { images: [{ url: user.image }] } : {}),
+    },
+    alternates: {
+      canonical: `/user/${id}`,
+    },
+  };
+}
 
 export default async function UserPage({
   params,
@@ -50,7 +79,11 @@ export default async function UserPage({
       <div className="relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
         <div className="h-48 sm:h-56 bg-linear-to-r from-neutral-300 to-neutral-400 dark:from-neutral-800 dark:to-neutral-700">
           {user.bgImage && (
-            <img src={user.bgImage} alt="" className="h-full w-full object-cover" />
+            <img
+              src={user.bgImage}
+              alt=""
+              className="h-full w-full object-cover"
+            />
           )}
         </div>
 
@@ -58,7 +91,11 @@ export default async function UserPage({
           <div className="-mt-12 mb-4 flex items-end gap-5">
             <div className="h-28 w-28 rounded-full border-4 border-white dark:border-neutral-900 bg-neutral-200 dark:bg-neutral-700 overflow-hidden shadow-lg shrink-0">
               {user.image ? (
-                <img src={user.image} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={user.image}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-3xl font-bold text-neutral-500">
                   {(user.name ?? "U").charAt(0).toUpperCase()}
@@ -117,7 +154,10 @@ export default async function UserPage({
         ) : (
           <div className="grid gap-4">
             {posts.map((post) => (
-              <div key={post.id} className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 bg-white dark:bg-neutral-900">
+              <div
+                key={post.id}
+                className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 bg-white dark:bg-neutral-900"
+              >
                 <Link
                   href={`/posts/${post.slug}`}
                   className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-neutral-600"

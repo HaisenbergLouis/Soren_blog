@@ -1,10 +1,45 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; q?: string }>;
+}): Promise<Metadata> {
+  const { category, q } = await searchParams;
+
+  if (q?.trim()) {
+    return {
+      title: `搜索: ${q.trim()}`,
+      description: `搜索「${q.trim()}」的相关文章`,
+      robots: { index: false, follow: true },
+    };
+  }
+
+  if (category) {
+    const cat = await prisma.category.findUnique({
+      where: { slug: category },
+      select: { name: true, description: true },
+    });
+    if (cat) {
+      return {
+        title: cat.name,
+        description: cat.description || `${cat.name} 分类下的所有文章`,
+      };
+    }
+  }
+
+  return {
+    title: "首页",
+    description: "FS Blog - 一个使用 Next.js 构建的全栈博客应用，发现精彩文章",
+  };
+}
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const { category } = await searchParams;
 
