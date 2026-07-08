@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
@@ -8,6 +9,58 @@ import { auth } from "@/lib/auth";
 import { Eye } from "lucide-react";
 import CommentList from "@/components/comments/CommentList";
 import FollowButton from "@/app/(main)/user/[id]/FollowButton";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  let { slug } = await params;
+  slug = decodeURIComponent(slug);
+
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    select: {
+      title: true,
+      excerpt: true,
+      coverImage: true,
+      createdAt: true,
+      tags: { include: { tag: { select: { name: true } } } },
+      author: { select: { name: true } },
+      category: { select: { name: true } },
+    },
+  });
+
+  if (!post) return { title: "文章未找到" };
+
+  const description =
+    post.excerpt ||
+    `阅读 ${post.author?.name ? post.author.name + " 的" : ""}文章「${post.title}」`;
+
+  return {
+    title: post.title,
+    description,
+    keywords: post.tags.map((t) => t.tag.name),
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.createdAt.toISOString(),
+      authors: post.author?.name ? [post.author.name] : [],
+      tags: post.tags.map((t) => t.tag.name),
+      ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      ...(post.coverImage ? { images: [post.coverImage] } : {}),
+    },
+    alternates: {
+      canonical: `/posts/${slug}`,
+    },
+  };
+}
 
 export default async function PostDetailPage({
   params,
@@ -74,11 +127,8 @@ export default async function PostDetailPage({
             <Eye className="h-3.5 w-3.5" /> {post.viewCount}
           </span>
         </div>
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
-          {post.title}
-        </h1>
         <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
-          {slug}
+          {post.title}
         </h1>
         {/* TODO: 文章摘要 */}
         {post.excerpt && (
