@@ -68,17 +68,17 @@ export default async function Home({
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
-      <div className="flex gap-12">
+      <div className="flex">
         {/* 左侧：分类列表 */}
-        <aside className="w-56 shrink-0 hidden md:block">
-          <div className="sticky top-24 space-y-1">
+        <aside className="w-56 shrink-0 hidden md:block border-r border-neutral-200 dark:border-neutral-700 pr-12">
+          <div className="sticky top-24 space-y-1 bg-gray-100 p-2 rounded-md">
             <Link
               href="/"
               className={
                 "block rounded-xl px-4 py-2.5 text-sm transition-colors " +
                 (!category
-                  ? "font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800"
-                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100")
+                  ? "font-semibold text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800"
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-white dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white")
               }
             >
               全部文章
@@ -89,11 +89,12 @@ export default async function Home({
             {categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={category === cat.slug ? "/" : "/?category=" + cat.slug}
+                href={"/?category=" + cat.slug}
+                scroll={false}
                 className={
                   "block rounded-xl px-4 py-2.5 text-sm transition-colors " +
                   (category === cat.slug
-                    ? "font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800"
+                    ? "font-semibold text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800"
                     : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100")
                 }
               >
@@ -107,7 +108,7 @@ export default async function Home({
         </aside>
 
         {/* 右侧：文章列表 */}
-        <div key={category ?? "all"} className="flex-1 min-w-0">
+        <div key={category ?? "all"} className="flex-1 min-w-0 pl-12">
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-8">
             {currentCategory ? currentCategory.name : "所有文章"}
           </h1>
