@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { Eye } from "lucide-react";
 import CommentList from "@/components/comments/CommentList";
+import AIChatPanel from "@/components/ai/AIChatPanel";
 import FollowButton from "@/app/(main)/user/[id]/FollowButton";
 
 export async function generateMetadata({
@@ -193,6 +194,8 @@ export default async function PostDetailPage({
         </div>
       )}
       <CommentList postId={post.id} />
+
+      <AIChatPanel postTitle={post.title} postContent={post.content} />
     </article>
   );
 }
