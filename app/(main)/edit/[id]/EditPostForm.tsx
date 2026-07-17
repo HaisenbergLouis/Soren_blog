@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 
 type PostData = {
   id: string;
@@ -19,6 +19,12 @@ type PostData = {
 export default function EditPostForm({ post }: { post: PostData }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
+  const [generatingSlug, setGeneratingSlug] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+  const excerptRef = useRef<HTMLTextAreaElement>(null);
+  const slugRef = useRef<HTMLInputElement>(null);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     [],
   );
@@ -28,6 +34,51 @@ export default function EditPostForm({ post }: { post: PostData }) {
       .then((res) => res.json())
       .then(setCategories);
   }, []);
+
+  const handleAISummary = async () => {
+    const content = contentRef.current?.value;
+    const title = titleRef.current?.value;
+    if (!content || content.length < 50) {
+      return;
+    }
+    setGeneratingSummary(true);
+    try {
+      const res = await fetch("/api/ai/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content }),
+      });
+      const data = await res.json();
+      if (!data.error && excerptRef.current) {
+        excerptRef.current.value = data.summary;
+      }
+    } catch {
+      // ignore
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
+  const handleAISlug = async () => {
+    const title = titleRef.current?.value;
+    if (!title || !title.trim()) return;
+    setGeneratingSlug(true);
+    try {
+      const res = await fetch("/api/ai/slug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json();
+      if (!data.error && slugRef.current) {
+        slugRef.current.value = data.slug;
+      }
+    } catch {
+      // ignore
+    } finally {
+      setGeneratingSlug(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,6 +127,7 @@ export default function EditPostForm({ post }: { post: PostData }) {
             标题 <span className="text-red-500">*</span>
           </label>
           <input
+            ref={titleRef}
             name="title"
             defaultValue={post.title}
             required
@@ -86,10 +138,26 @@ export default function EditPostForm({ post }: { post: PostData }) {
 
         {/* Slug */}
         <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-            Slug <span className="text-red-500">*</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Slug <span className="text-red-500">*</span>
+            </label>
+            <button
+              type="button"
+              onClick={handleAISlug}
+              disabled={generatingSlug}
+              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-500 disabled:opacity-50 transition-colors"
+            >
+              {generatingSlug ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3" />
+              )}
+              AI 生成
+            </button>
+          </div>
           <input
+            ref={slugRef}
             name="slug"
             defaultValue={post.slug}
             required
@@ -119,10 +187,26 @@ export default function EditPostForm({ post }: { post: PostData }) {
 
         {/* 摘要 */}
         <div>
-          <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-            摘要
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              摘要
+            </label>
+            <button
+              type="button"
+              onClick={handleAISummary}
+              disabled={generatingSummary}
+              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-500 disabled:opacity-50 transition-colors"
+            >
+              {generatingSummary ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3" />
+              )}
+              AI 生成摘要
+            </button>
+          </div>
           <textarea
+            ref={excerptRef}
             name="excerpt"
             defaultValue={post.excerpt ?? ""}
             rows={3}
@@ -137,6 +221,7 @@ export default function EditPostForm({ post }: { post: PostData }) {
             内容（Markdown）
           </label>
           <textarea
+            ref={contentRef}
             name="content"
             defaultValue={post.content}
             rows={16}
