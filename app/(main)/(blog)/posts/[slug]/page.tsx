@@ -1,21 +1,84 @@
+/* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { Eye } from "lucide-react";
+import CommentList from "@/components/comments/CommentList";
+import AIChatPanel from "@/components/ai/AIChatPanel";
+import FollowButton from "@/app/(main)/user/[id]/FollowButton";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  let { slug } = await params;
+  slug = decodeURIComponent(slug);
+
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    select: {
+      title: true,
+      excerpt: true,
+      coverImage: true,
+      createdAt: true,
+      tags: { include: { tag: { select: { name: true } } } },
+      author: { select: { name: true } },
+      category: { select: { name: true } },
+    },
+  });
+
+  if (!post) return { title: "文章未找到" };
+
+  const description =
+    post.excerpt ||
+    `阅读 ${post.author?.name ? post.author.name + " 的" : ""}文章「${post.title}」`;
+
+  return {
+    title: post.title,
+    description,
+    keywords: post.tags.map((t) => t.tag.name),
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.createdAt.toISOString(),
+      authors: post.author?.name ? [post.author.name] : [],
+      tags: post.tags.map((t) => t.tag.name),
+      ...(post.coverImage ? { images: [{ url: post.coverImage }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      ...(post.coverImage ? { images: [post.coverImage] } : {}),
+    },
+    alternates: {
+      canonical: `/posts/${slug}`,
+    },
+  };
+}
 
 export default async function PostDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  let { slug } = await params;
+  slug = decodeURIComponent(slug);
 
-  // TODO: 从数据库获取文章
+  const session = await auth();
   const post = await prisma.post.findUnique({
     where: { slug },
-    include: { category: true, tags: { include: { tag: true } } },
+    include: {
+      category: true,
+      tags: { include: { tag: true } },
+      author: { select: { id: true, name: true, image: true } },
+    },
   });
   if (!post) notFound();
 
@@ -65,11 +128,8 @@ export default async function PostDetailPage({
             <Eye className="h-3.5 w-3.5" /> {post.viewCount}
           </span>
         </div>
-        <h1 className="text-xl md:text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
-          {post.title}
-        </h1>
         <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
-          {slug}
+          {post.title}
         </h1>
         {/* TODO: 文章摘要 */}
         {post.excerpt && (
@@ -78,6 +138,40 @@ export default async function PostDetailPage({
           </p>
         )}
       </header>
+
+      {/* 作者信息 */}
+      {post.author && (
+        <div className="flex items-center justify-between mb-8 p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+          <Link
+            href={`/user/${post.author.id}`}
+            className="flex items-center gap-3 min-w-0"
+          >
+            <div className="h-10 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden shrink-0">
+              {post.author.image ? (
+                <img
+                  src={post.author.image}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-sm font-medium text-neutral-500">
+                  {(post.author.name ?? "U").charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                {post.author.name ?? "匿名"}
+              </p>
+              <p className="text-xs text-neutral-400">文章作者</p>
+            </div>
+          </Link>
+          {session?.user?.id && session.user.id !== post.author.id && (
+            <FollowButton targetUserId={post.author.id} />
+          )}
+        </div>
+      )}
+
       {/* 文章正文 */}
       <div className="prose prose-neutral dark:prose-invert max-w-none">
         {/* TODO: 渲染 Markdown 内容，可以用 react-markdown */}
@@ -99,6 +193,9 @@ export default async function PostDetailPage({
           </div>
         </div>
       )}
+      <CommentList postId={post.id} />
+
+      <AIChatPanel postTitle={post.title} postContent={post.content} />
     </article>
   );
 }

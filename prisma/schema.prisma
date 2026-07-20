@@ -32,6 +32,8 @@ model Post {
 
   authorId String?
   author   User? @relation(fields: [authorId], references: [id])
+
+  comments Comment[]
 }
 
 model Category {
@@ -67,8 +69,85 @@ model User {
   email     String   @unique
   password  String
   image     String?
+  bio       String?  // 个人简介
+  bgImage   String?  // 个人主页背景图
   role      String   @default("USER") // "USER" | "ADMIN"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts     Post[]
+  comments Comment[]
+  followedBy  Follow[] @relation("following") // 粉丝
+  following   Follow[] @relation("follower")  // 关注的人
+  conversations ConversationParticipant[]
+  sentMessages Message[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  postId String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User @relation(fields: [authorId], references: [id])
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Conversation{
+  id String @id @default(cuid())
+  createAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages Message[]
+}
+
+model ConversationParticipant{
+  conversationId String
+  userId String
+  lastReadAt     DateTime?  // 该用户最后一次阅读的时间，用来算未读数
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  createdAt      DateTime @default(now())
+  readAt         DateTime?  // 消息被读的时间
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
