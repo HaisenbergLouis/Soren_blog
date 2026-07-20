@@ -6,6 +6,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, Calendar } from "lucide-react";
 import FollowButton from "./FollowButton";
+import MessageButton from "./MessageButton";
 
 export async function generateMetadata({
   params,
@@ -114,7 +115,10 @@ export default async function UserPage({
 
             <div className="pt-14 shrink-0">
               {!isOwn && session?.user?.id && (
-                <FollowButton targetUserId={user.id} />
+                <>
+                  <FollowButton targetUserId={user.id} />
+                  <MessageButton targetUserId={user.id} />
+                </>
               )}
               {isOwn && (
                 <Link

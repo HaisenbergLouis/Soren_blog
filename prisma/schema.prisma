@@ -78,6 +78,8 @@ model User {
   comments Comment[]
   followedBy  Follow[] @relation("following") // 粉丝
   following   Follow[] @relation("follower")  // 关注的人
+  conversations ConversationParticipant[]
+  sentMessages Message[]
 }
 
 model Comment {
@@ -112,4 +114,40 @@ model Follow {
   @@id([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model Conversation{
+  id String @id @default(cuid())
+  createAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages Message[]
+}
+
+model ConversationParticipant{
+  conversationId String
+  userId String
+  lastReadAt     DateTime?  // 该用户最后一次阅读的时间，用来算未读数
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  createdAt      DateTime @default(now())
+  readAt         DateTime?  // 消息被读的时间
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
