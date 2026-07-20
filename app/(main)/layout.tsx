@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Home, Settings, Search, PenSquare } from "lucide-react";
 import { auth } from "@/lib/auth";
 import LogoutButton from "@/components/layout/LogoutButton";
+import Footer from "@/components/layout/Footer";
 
 export default async function MainLayout({
   children,
@@ -95,11 +96,7 @@ export default async function MainLayout({
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-neutral-200 dark:border-neutral-800">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8 text-center text-sm text-neutral-500">
-          <p>&copy; {new Date().getFullYear()} FS Blog. Built with Next.js.</p>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
