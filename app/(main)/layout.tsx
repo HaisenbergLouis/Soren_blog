@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { Home, Settings, Search, PenSquare } from "lucide-react";
+import { Home, Settings, Search, PenSquare, MessageCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import LogoutButton from "@/components/layout/LogoutButton";
 import Footer from "@/components/layout/Footer";
@@ -16,7 +16,7 @@ export default async function MainLayout({
     <>
       <header className="sticky top-0 z-50 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 flex items-center justify-between h-16">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <Link
               href="/"
               className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100"
@@ -32,7 +32,7 @@ export default async function MainLayout({
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             {/* 搜索框 */}
             <form action="/" method="GET" className="hidden sm:block">
               <div className="relative">
@@ -47,6 +47,30 @@ export default async function MainLayout({
 
             {session?.user ? (
               <>
+                <Link
+                  href="/write"
+                  className="flex items-center gap-1 rounded-lg px-1 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                >
+                  <PenSquare className="h-4 w-4" />
+                  写文章
+                </Link>
+                <Link
+                  href="/messages"
+                  className="flex items-center gap-1 rounded-lg px-1 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  私信
+                </Link>
+
+                {session.user.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  >
+                    <Settings className="h-4 w-4" />
+                    管理后台
+                  </Link>
+                )}
                 <Link
                   href="/profile"
                   className="h-8 w-8 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden border-2 border-transparent hover:border-neutral-400 transition-all shrink-0"
@@ -64,22 +88,6 @@ export default async function MainLayout({
                     </span>
                   )}
                 </Link>
-                <Link
-                  href="/write"
-                  className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-                >
-                  <PenSquare className="h-4 w-4" />
-                  写文章
-                </Link>
-                {session.user.role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
-                  >
-                    <Settings className="h-4 w-4" />
-                    管理后台
-                  </Link>
-                )}
                 <LogoutButton />
               </>
             ) : (
