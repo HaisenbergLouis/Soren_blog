@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Home, Settings, Search, PenSquare, MessageCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import LogoutButton from "@/components/layout/LogoutButton";
+import UnreadBadge from "@/components/layout/UnreadBadge";
 import Footer from "@/components/layout/Footer";
 
 export default async function MainLayout({
@@ -56,10 +57,11 @@ export default async function MainLayout({
                 </Link>
                 <Link
                   href="/messages"
-                  className="flex items-center gap-1 rounded-lg px-1 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  className="relative flex items-center gap-1 rounded-lg px-1 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
                 >
                   <MessageCircle className="h-4 w-4" />
                   私信
+                  <UnreadBadge />
                 </Link>
 
                 {session.user.role === "ADMIN" && (

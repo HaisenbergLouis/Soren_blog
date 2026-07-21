@@ -36,6 +36,10 @@ export default function ChatView({
       setMessages(msgs);
       setUserId(profile.id ?? "");
       setLoading(false);
+      // 标记已读
+      fetch(`/api/message/${conversationId}`, { method: "PATCH" }).catch(
+        () => {},
+      );
     });
   }, [conversationId]);
 
@@ -53,7 +57,13 @@ export default function ChatView({
     const timer = setInterval(() => {
       fetch(`/api/message/${conversationId}`)
         .then((r) => r.json())
-        .then(setMessages);
+        .then((msgs) => {
+          setMessages(msgs);
+          // 每次轮询也标记已读
+          fetch(`/api/message/${conversationId}`, { method: "PATCH" }).catch(
+            () => {},
+          );
+        });
     }, 5000);
     return () => clearInterval(timer);
   }, [conversationId]);
