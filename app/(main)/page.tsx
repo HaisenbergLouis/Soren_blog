@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import LoadMore from "@/components/posts/LoadMore";
 
 export async function generateMetadata({
   searchParams,
@@ -41,7 +42,16 @@ export default async function Home({
 }: {
   searchParams: Promise<{ category?: string; q?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
+
+  const where: Record<string, unknown> = { published: true };
+  if (category) where.category = { slug: category };
+  if (q?.trim()) {
+    where.OR = [
+      { title: { contains: q.trim() } },
+      { excerpt: { contains: q.trim() } },
+    ];
+  }
 
   const [categories, posts, totalPosts] = await Promise.all([
     prisma.category.findMany({
@@ -51,12 +61,9 @@ export default async function Home({
       orderBy: { createdAt: "desc" },
     }),
     prisma.post.findMany({
-      where: {
-        published: true,
-        ...(category ? { category: { slug: category } } : {}),
-      },
+      where,
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 9,
       include: { category: { select: { name: true, slug: true } } },
     }),
     prisma.post.count({ where: { published: true } }),
@@ -108,40 +115,28 @@ export default async function Home({
         </aside>
 
         {/* 右侧：文章列表 */}
-        <div key={category ?? "all"} className="flex-1 min-w-0 pl-12">
+        <div
+          key={(category ?? "") + ":" + (q ?? "")}
+          className="flex-1 min-w-0 pl-12"
+        >
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-8">
-            {currentCategory ? currentCategory.name : "所有文章"}
+            {q?.trim()
+              ? `搜索「${q.trim()}」`
+              : currentCategory
+                ? currentCategory.name
+                : "所有文章"}
           </h1>
 
           {posts.length === 0 ? (
-            <p className="text-neutral-400 text-center py-20">还没有文章</p>
+            <p className="text-neutral-400 text-center py-20">
+              {q?.trim() ? "没有找到相关文章" : "还没有文章"}
+            </p>
           ) : (
-            <div className="space-y-8">
-              {posts.map((post, i) => (
-                <article key={post.id}>
-                  <Link href={"/posts/" + post.slug} className="group block">
-                    <div className="flex items-center gap-2 text-xs text-neutral-500 mb-2">
-                      <span>{post.category?.name ?? "未分类"}</span>
-                      <span>·</span>
-                      <time>
-                        {new Date(post.createdAt).toLocaleDateString("zh-CN")}
-                      </time>
-                    </div>
-                    <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                      {post.title}
-                    </h2>
-                    {post.excerpt && (
-                      <p className="text-sm text-neutral-500 mt-2 leading-relaxed line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                    )}
-                  </Link>
-                  {i < posts.length - 1 && (
-                    <div className="border-b border-neutral-100 dark:border-neutral-800 mt-8" />
-                  )}
-                </article>
-              ))}
-            </div>
+            <LoadMore
+              initialPosts={posts}
+              category={category}
+              keyword={q?.trim()}
+            />
           )}
         </div>
       </div>
